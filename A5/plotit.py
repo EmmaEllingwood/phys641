@@ -3,12 +3,14 @@ import matplotlib.pyplot as plt
 import camb
 
 order=['ombh2','omch2','H0','tau','As','ns']
-maxi=10000
+maxi=5000
 mini=1000
 
 #chains_c=np.loadtxt('chains_c_newlong10000.txt') #chain from part c no source
 #chains_c=np.loadtxt('chains_d_newlong10000.txt')  #chain from a_src=0.00075
-chains_c=np.loadtxt('chains_d_newlong10000_point003src.txt') #chain from asrc=0.003
+#chains_c=np.loadtxt('chains_d_newlong10000_point003src.txt') #chain from asrc=0.003
+
+chains_c=np.loadtxt('chains_d_trynewsource.txt')  #Chain from implementing a new source type
 
 
 plt.figure(3)
@@ -21,6 +23,12 @@ for x in range(6):
 	values=chains_c[mini:maxi,x+1]
 	means[x]=np.mean(chains_c[mini:maxi,x+1])
 	errors[x]=np.std(chains_c[mini:maxi,x+1])
+
+plt.figure(4)
+plt.plot(chains_c[mini:maxi,7])
+mean_source=np.mean(chains_c[mini:maxi,7])
+std_source=np.std(chains_c[mini:maxi,7])
+print 'source   Mean=',mean_source,'  Sigma=',std_source
 
 
 for xp in range(0,6,1):
@@ -60,7 +68,8 @@ tau=0.0543
 As=np.exp(3.0448)/(10.**10)
 ns=0.96605
 
-source=0.003
+source=0.0005
+#source=0.003
 #source=0.00075
 #source=0
 
@@ -71,7 +80,10 @@ plt.plot(ell,dat,label='WMAP Data')
 
 cos=np.asarray([omega_b,omega_c,H0,tau,As,ns])   #Original planck vlaues
 
-cos=np.asarray([2.18467896e-02,2.58789051e-01,4.12424339e+01,2.43169404e-02,3.61875679e-09,1.17756180e+00]) ##src=0.003
+cos=np.asarray([2.24677090e-02, 1.35069736e-01, 6.33648868e+01, 8.69374050e-02, 2.52179341e-09, 1.01219627e+00])  #The new implementation of the source
+
+
+#cos=np.asarray([2.18467896e-02,2.58789051e-01,4.12424339e+01,2.43169404e-02,3.61875679e-09,1.17756180e+00]) ##src=0.003
 
 #cos=np.asarray([2.23098702e-02, 1.46855814e-01, 6.01412879e+01, 9.04309095e-02, 2.68832248e-09, 1.02657516e+00]) ##src=0.00075
 
@@ -88,8 +100,10 @@ results=camb.get_results(pars)
 powers=results.get_cmb_power_spectra(pars,CMB_unit='muK')
 for name in powers: print name
 totCl=powers['total']
-
-
+print len(totCl)
+d=0.0006666661183086932
+for x in range(len(totCl)):
+	totCl[x,0]=totCl[x,0]+(d*x**2)
 plt.plot(totCl[:,0],label='CAMB Results from Planck Parameters')
 plt.xlabel('Multipole Moment l')
 plt.ylabel('l(l+1)$C_{l}/(2\pi)$') 
